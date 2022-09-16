@@ -1,0 +1,27 @@
+{
+  "name": "pcat",
+  "version": "1.0.0",
+  "description": "PCAT photo app",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahmetkursat/PCAT.git"
+  },
+  "keywords": [
+    "phota",
+    "app",
+    "camera"
+  ],
+  "author": "ahmet kürşad yıldız",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ahmetkursat/PCAT/issues"
+  },
+  "homepage": "https://github.com/ahmetkursat/PCAT#readme",
+  "devDependencies": {
+    "prettier": "2.7.1"
+  }
+}
