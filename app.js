@@ -1,41 +1,42 @@
 const express = require('express');
+const ejs = require('ejs');
 const { request } = require('http');
 const { resolve } = require('path');
 
 const path = require('path');
 
 const app = express();
+//template engine
+app.set('view engine', 'ejs'); // javascipt engine ejs engine dönüştürüyoruz
 
-//middleware 
-const mylogger = (req,res,next) => {
-  console.log("Middleware log 1");
+//middleware
+const mylogger = (req, res, next) => {
+  console.log('Middleware log 1');
   next();
-}
-const mylogger2 = (req,res,next) => {
-  console.log("Middleware log 2");
-  next();  //next metodu geri cagırılmadıgı zaman işlem devam etmiyor req ve res arasında kalıyor 
-}
+};
+const mylogger2 = (req, res, next) => {
+  console.log('Middleware log 2');
+  next(); //next metodu geri cagırılmadıgı zaman işlem devam etmiyor req ve res arasında kalıyor
+};
 
 app.use(mylogger);
 app.use(mylogger2);
-app.use(express.static('public'));  //static dosyaları public klasörüne attık
+app.use(express.static('public')); //static dosyaları public klasörüne attık
 
-// app.get('/', (req, res) => {
+// routes
+app.get('/', (req, res) => {
+  // res.sendFile(path.resolve(__dirname, 'public/index.html')); //klasör bulmak için kullandıgımız method
+  res.render('index');
+});
 
-//   const photo = {
-//     id:1,
-//     name:"Photoname",
-//     description :"photo description"
-//   }
-
-//   res.send(photo);  //res metodu geri cagırlmadıgında get request tamamlanmıyor sadece req alınıyor res dönmüyor
-// });
-
-app.get('/',(req,res) => {
-  res.sendFile(path.resolve(__dirname, 'public/index.html'));
-  
-})
-
+app.get('/about', (req, res) => {
+  // res.sendFile(path.resolve(__dirname, 'public/index.html')); //klasör bulmak için kullandıgımız method
+  res.render('about');
+});
+app.get('/add', (req, res) => {
+  // res.sendFile(path.resolve(__dirname, 'public/index.html')); //klasör bulmak için kullandıgımız method
+  res.render('add');
+});
 
 const port = 3000;
 app.listen(port, () => {
