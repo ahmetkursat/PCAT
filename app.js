@@ -5,6 +5,8 @@ const { request } = require('http');
 const { resolve } = require('path');
 const Photo = require('./models/Photo.js');
 const path = require('path');
+const fs = require('fs');
+const fileUpload = require('express-fileupload');
 const app = express();
 //veritabanına baglanma
 mongoose.connect('mongodb://localhost/pcat-test-db', {
@@ -15,42 +17,53 @@ mongoose.connect('mongodb://localhost/pcat-test-db', {
 app.set('view engine', 'ejs'); // javascipt engine ejs engine dönüştürüyoruz
 
 //middleware
-// const mylogger = (req, res, next) => {
-//   console.log('Middleware log 1');
-//   next();
-// };
-// const mylogger2 = (req, res, next) => {
-//   console.log('Middleware log 2');
-//   next(); //next metodu geri cagırılmadıgı zaman işlem devam etmiyor req ve res arasında kalıyor
-// };
-
-// app.use(mylogger);
-// app.use(mylogger2);
 app.use(express.static('public')); //static dosyaları public klasörüne attık
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(fileUpload());
 
 // routes
-app.get('/', async(req, res) => {
-  const photos = await Photo.find({})
-  // res.sendFile(path.resolve(__dirname, 'public/index.html')); //klasör bulmak için kullandıgımız method
-  res.render('index' , {
-   photos
+app.get('/', async (req, res) => {
+  const photos = await Photo.find({}).sort('-datecreated');
+
+  res.render('index', {
+    photos,
   });
 });
-
 app.get('/about', (req, res) => {
-  // res.sendFile(path.resolve(__dirname, 'public/index.html')); //klasör bulmak için kullandıgımız method
   res.render('about');
 });
 app.get('/add', (req, res) => {
-  // res.sendFile(path.resolve(__dirname, 'public/index.html')); //klasör bulmak için kullandıgımız method
   res.render('add');
 });
-app.post('/photos', async(req, res) => {
-  await Photo.create(req.body) //express te json objesşnş almak için kullandıgımız method
-  res.redirect('/'); //anasayfaya dönmesini saglar
+app.get('/photos/:id', async (req, res) => {
+  const photo = await Photo.findById(req.params.id);
+  res.render('photo', {
+    photo,
+  });
 });
+app.post('/photos', async (req, res) => {
+   //await Photo.create(req.body); //express te json objesşnş almak için kullandıgımız method
+ //  res.redirect('/'); //anasayfaya dönmesini saglar
+  
+  const uploadDir = 'public/uploads/';
+  if(!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+  }
+
+
+  let uploadeImage = req.files.image;
+  let uploadPath = __dirname + '/public/uploads/' + uploadeImage.name;
+
+  uploadeImage.mv(uploadPath, async () => {
+    await Photo.create({
+      ...req.body, //databaseden verileri alması için belirtiğiğmiz yol
+      image: '/uploads/' + uploadeImage.name,
+    });
+    res.redirect('/');
+  });
+});
+
 const port = 3000;
 app.listen(port, () => {
   console.log(`Sunucu ${port} portunda başlatıldı`);

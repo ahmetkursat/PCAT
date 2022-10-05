@@ -206,13 +206,17 @@ h2, p { color: #666666; }
 }
 
 .tm-page-title { font-size: 2.5rem; }
-.tm-catalog-item-list { justify-content: start; }
+.tm-catalog-item-list { 
+    flex-direction: row;
+    align-items: flex-start;
+     }
 
 .tm-catalog-item {
     max-width: 462px;
     display: flex;
     flex-direction: column;
     margin-bottom: 64px;
+    justify-content: start;
 }
 
 .tm-thumbnail-container { overflow: hidden; }
