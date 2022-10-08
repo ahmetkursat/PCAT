@@ -1,17 +1,21 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const ejs = require('ejs');
+const methodOverride = require('method-override')
 const { request } = require('http');
 const { resolve } = require('path');
 const Photo = require('./models/Photo.js');
 const path = require('path');
 const fs = require('fs');
 const fileUpload = require('express-fileupload');
+const photoControllers = require('./controller/photoControllers');
+const pagecontrollers = require('./controller/pageController');
 const app = express();
 //veritabanına baglanma
 mongoose.connect('mongodb://localhost/pcat-test-db', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  
 });
 //template engine
 app.set('view engine', 'ejs'); // javascipt engine ejs engine dönüştürüyoruz
@@ -21,48 +25,20 @@ app.use(express.static('public')); //static dosyaları public klasörüne attık
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(fileUpload());
+app.use(methodOverride('_method',{
+  methods: ['POST','GET']
+}))
 
 // routes
-app.get('/', async (req, res) => {
-  const photos = await Photo.find({}).sort('-datecreated');
+app.get('/', photoControllers.getALLPhotos);
+app.get('/photos/:id',photoControllers.getPhoto);
+app.post('/photos',photoControllers.createPhoto);
+app.put('/photos/:id',photoControllers.updatePhoto);
+app.delete('/photos/:id',photoControllers.deletePhoto);
 
-  res.render('index', {
-    photos,
-  });
-});
-app.get('/about', (req, res) => {
-  res.render('about');
-});
-app.get('/add', (req, res) => {
-  res.render('add');
-});
-app.get('/photos/:id', async (req, res) => {
-  const photo = await Photo.findById(req.params.id);
-  res.render('photo', {
-    photo,
-  });
-});
-app.post('/photos', async (req, res) => {
-   //await Photo.create(req.body); //express te json objesşnş almak için kullandıgımız method
- //  res.redirect('/'); //anasayfaya dönmesini saglar
-  
-  const uploadDir = 'public/uploads/';
-  if(!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-  }
-
-
-  let uploadeImage = req.files.image;
-  let uploadPath = __dirname + '/public/uploads/' + uploadeImage.name;
-
-  uploadeImage.mv(uploadPath, async () => {
-    await Photo.create({
-      ...req.body, //databaseden verileri alması için belirtiğiğmiz yol
-      image: '/uploads/' + uploadeImage.name,
-    });
-    res.redirect('/');
-  });
-});
+app.get('/about',pagecontrollers.getAboutPage);
+app.get('/add',pagecontrollers.getAddPage);
+app.get('/photos/edit/:id',pagecontrollers.getEditPage);
 
 const port = 3000;
 app.listen(port, () => {
