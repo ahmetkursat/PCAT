@@ -12,11 +12,14 @@ const photoControllers = require('./controller/photoControllers');
 const pagecontrollers = require('./controller/pageController');
 const app = express();
 //veritabanına baglanma
-mongoose.connect('mongodb://localhost/pcat-test-db', {
+mongoose.connect('mongodb+srv://ahmet:baban535353@cluster0.mvednwj.mongodb.net/?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  
-});
+}).then(()=> {
+  console.log('db connected')
+}).catch((err) =>{
+  console.log(err)
+})
 //template engine
 app.set('view engine', 'ejs'); // javascipt engine ejs engine dönüştürüyoruz
 
@@ -28,7 +31,6 @@ app.use(fileUpload());
 app.use(methodOverride('_method',{
   methods: ['POST','GET']
 }))
-
 // routes
 app.get('/', photoControllers.getALLPhotos);
 app.get('/photos/:id',photoControllers.getPhoto);
@@ -40,7 +42,7 @@ app.get('/about',pagecontrollers.getAboutPage);
 app.get('/add',pagecontrollers.getAddPage);
 app.get('/photos/edit/:id',pagecontrollers.getEditPage);
 
-const port = 3000;
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`Sunucu ${port} portunda başlatıldı`);
 });
